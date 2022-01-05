@@ -8,12 +8,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("sender")
-class SenderController (val sender : KafkaSender) {
+class SenderController(val sender: KafkaSender) {
 
     @GetMapping("/{message}")
-    fun sendMessageToKafka (@PathVariable("message") message : String) : ResponseEntity<String> {
+    fun sendMessageToKafka(@PathVariable("message") message: String): ResponseEntity<String> {
         sender.send(message);
         return ResponseEntity.ok("ok");
     }
-
 }
