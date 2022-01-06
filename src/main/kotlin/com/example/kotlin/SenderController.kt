@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("sender")
-class SenderController(val sender: KafkaSender) {
+class SenderController(val delayMessageService : DelayMessageService) {
 
-    @GetMapping("/{message}")
-    fun sendMessageToKafka(@PathVariable("message") message: String): ResponseEntity<String> {
-        sender.send(message);
+    @GetMapping("/{count}")
+    fun sendMessageToKafka(@PathVariable("count") count: Int): ResponseEntity<String> {
+        delayMessageService.createMessagesAndSend(count)
         return ResponseEntity.ok("ok");
     }
 }
