@@ -4,3 +4,13 @@ spring:
   kafka:
     consumer:
       auto-offset-reset: earliest
+  cloud:
+    loadbalancer:
+      ribbon:
+        enable: false
+
+feign:
+  client:
+    config:
+      externalService:
+        url: localhost:8082

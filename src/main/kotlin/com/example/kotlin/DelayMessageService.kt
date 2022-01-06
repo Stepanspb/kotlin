@@ -5,12 +5,12 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 @Service
-class DelayMessageService {
+class DelayMessageService (var externalServiceFeignClient: ExternalServiceFeignClient) {
 
     fun createMessagesAndSend(messagesCount: Int) {
         val createMessages = createMessages(messagesCount)
         for (message in createMessages) {
-            println(message)
+            externalServiceFeignClient.processMessage(message);
         }
     }
 
