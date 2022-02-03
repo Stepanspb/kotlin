@@ -1,0 +1,36 @@
+server:
+  port: 8081
+spring:
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.example.kotlin
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+feign:
+  client:
+    config:
+      externalService:
+        url: localhost:8082
+        readTimeout: 3000
+        connectTimeout: 1000
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      externalService:
+        waitDurationInOpenState: 1000ms
+        slidingWindowSize: 10
+        failureRateThreshold: 10
+  ratelimiter:
+    instances:
+      externalService:
+        timeoutDuration: 3s
+        limitRefreshPeriod: 1000ms
+        limitForPeriod: 1000
