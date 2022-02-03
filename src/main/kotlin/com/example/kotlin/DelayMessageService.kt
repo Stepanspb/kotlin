@@ -5,26 +5,26 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 @Service
-class DelayMessageService (var externalServiceFeignClient: ExternalServiceFeignClient) {
+class DelayMessageService(
+    val externalServiceFeignClient: ExternalServiceFeignClient,
+    val delayedMessagesRouter: DelayedMessagesRouter
+) {
 
-    fun createMessagesAndSend(messagesCount: Int) {
-        val createMessages = createMessages(messagesCount)
-        for (message in createMessages) {
-            externalServiceFeignClient.processMessage(message);
+    fun sendMessages(messages: List<KafkaMessage>) {
+        for (message in messages) {
+            try {
+                externalServiceFeignClient.processMessage(message);
+                println("message $message was send ${LocalDateTime.now()}")
+            } catch (ex: Exception) {
+                println("exception $ex")
+                if (message.timeToPerform == null || message.timeToPerform!!.isBefore(LocalDateTime.now())) {
+                    message.timeToPerform = generateRandomDelay();
+                }
+                delayedMessagesRouter.route(message)
+            }
         }
     }
 
+    private fun generateRandomDelay() = LocalDateTime.now().plusSeconds(Random.nextLong(100))
 
-    private fun createMessages(messagesCount: Int): List<DelayedMessage> {
-        val messages = mutableListOf<DelayedMessage>()
-        for (i in 0..messagesCount) {
-            val now = LocalDateTime.now();
-            messages.add(DelayedMessage(i, now, generateRandomDelay(now)))
-        }
-        return messages
-    }
-
-    private fun generateRandomDelay(now : LocalDateTime) = now.plusSeconds(Random.nextLong(30))
 }
-
-data class DelayedMessage(val id: Int, val creationTime: LocalDateTime, val timeToPerform: LocalDateTime)
